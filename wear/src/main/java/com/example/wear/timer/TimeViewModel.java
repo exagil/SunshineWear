@@ -7,12 +7,12 @@ public class TimeViewModel {
         this.time = time;
     }
 
-    public String second() {
-        return String.valueOf(time.second());
+    public String seconds() {
+        return String.valueOf(time.seconds());
     }
 
     public String minutes() {
-        return String.valueOf(time.minute());
+        return String.valueOf(time.minutes());
     }
 
     public String hour() {

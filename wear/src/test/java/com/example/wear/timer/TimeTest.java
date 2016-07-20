@@ -27,12 +27,12 @@ public class TimeTest {
     @Test
     public void testThatTimeKnowsItsAssociatedMinute() {
         Time time = Time.now();
-        assertEquals(calendar.get(Calendar.MINUTE), time.minute(), 2.0f);
+        assertEquals(calendar.get(Calendar.MINUTE), time.minutes(), 2.0f);
     }
 
     @Test
     public void testThatTimeKnowsItsAssociatedSecond() {
         Time time = Time.now();
-        assertEquals(calendar.get(Calendar.SECOND), time.second(), 2.0f);
+        assertEquals(calendar.get(Calendar.SECOND), time.seconds(), 2.0f);
     }
 }

@@ -39,6 +39,6 @@ public class TimeViewModelTest {
         Time time = Time.now();
         TimeViewModel timeViewModel = new TimeViewModel(time);
         int expectedSeconds = calendar.get(Calendar.SECOND);
-        assertEquals(String.valueOf(expectedSeconds), timeViewModel.second());
+        assertEquals(String.valueOf(expectedSeconds), timeViewModel.seconds());
     }
 }

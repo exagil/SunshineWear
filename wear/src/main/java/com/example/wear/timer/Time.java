@@ -19,11 +19,11 @@ public class Time {
         return calendar.get(Calendar.HOUR);
     }
 
-    public int minute() {
+    public int minutes() {
         return calendar.get(Calendar.MINUTE);
     }
 
-    public int second() {
+    public int seconds() {
         return calendar.get(Calendar.SECOND);
     }
 }
