@@ -1,5 +1,9 @@
 package com.example.wear;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -11,6 +15,8 @@ import com.example.wear.timer.Time;
 import com.example.wear.timer.TimeViewModel;
 import com.example.wear.timer.Timer;
 
+import java.util.TimeZone;
+
 public class SunshineWatchFaceService extends CanvasWatchFaceService {
     @Override
     public Engine onCreateEngine() {
@@ -20,16 +26,21 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
     public class SunshineWatchFaceEngine extends CanvasWatchFaceService.Engine {
         public static final int TIME_UPDATE_INTERVAL = 500;
         private Timer timer;
+        private boolean hasRegisteredTimeZoneChangedReceiver;
+        private TimeZoneReceiver timeZoneReceiver;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
             this.timer = Timer.getInstance(TIME_UPDATE_INTERVAL, this);
+            timeZoneReceiver = new TimeZoneReceiver();
         }
 
         @Override
         public void onAmbientModeChanged(boolean inAmbientMode) {
             super.onAmbientModeChanged(inAmbientMode);
+            invalidate();
+            timer.update();
         }
 
         @Override
@@ -40,31 +51,29 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onDraw(Canvas canvas, Rect bounds) {
             super.onDraw(canvas, bounds);
-            if (isVisible()) {
-                Time time = timer.getTime();
-                TimeViewModel timeViewModel = new TimeViewModel(time);
+            Time time = timer.getTime();
+            TimeViewModel timeViewModel = new TimeViewModel(time);
 
-                int height = canvas.getHeight();
-                int width = canvas.getWidth();
-                float centerY = height / 2f;
-                float centerX = width / 2f;
+            int height = canvas.getHeight();
+            int width = canvas.getWidth();
+            float centerY = height / 2f;
+            float centerX = width / 2f;
 
-                Paint backgroundPaint = new Paint();
-                backgroundPaint.setColor(getResources().getColor(R.color.black));
-                canvas.drawPaint(backgroundPaint);
+            Paint backgroundPaint = new Paint();
+            backgroundPaint.setColor(getResources().getColor(R.color.black));
+            canvas.drawPaint(backgroundPaint);
 
-                String hour = timeViewModel.hour();
-                String minutes = timeViewModel.minutes();
-                String seconds = timeViewModel.seconds();
+            String hour = timeViewModel.hour();
+            String minutes = timeViewModel.minutes();
+            String seconds = timeViewModel.seconds();
 
-                Paint paint = new Paint();
-                paint.setColor(getResources().getColor(R.color.white));
-                paint.setAntiAlias(true);
+            Paint paint = new Paint();
+            paint.setColor(getResources().getColor(R.color.white));
+            paint.setAntiAlias(true);
 
-                canvas.drawText(hour, centerX - 40, centerY, paint);
-                canvas.drawText(minutes, centerX, centerY, paint);
-                canvas.drawText(seconds, centerX + 40, centerY, paint);
-            }
+            canvas.drawText(hour, centerX - 40, centerY, paint);
+            canvas.drawText(minutes, centerX, centerY, paint);
+            canvas.drawText(seconds, centerX + 40, centerY, paint);
         }
 
         @Override
@@ -75,16 +84,42 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onTimeTick() {
             super.onTimeTick();
+            invalidate();
         }
 
         @Override
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
-            timer.begin();
+            if (visible) registerTimeZoneChangedReceiver();
+            else unregisterTimeZoneChangedReceiver();
+            timer.update();
+        }
+
+        private void unregisterTimeZoneChangedReceiver() {
+            if (!hasRegisteredTimeZoneChangedReceiver)
+                return;
+            hasRegisteredTimeZoneChangedReceiver = false;
+            SunshineWatchFaceService.this.unregisterReceiver(timeZoneReceiver);
+        }
+
+        private void registerTimeZoneChangedReceiver() {
+            if (hasRegisteredTimeZoneChangedReceiver)
+                return;
+            hasRegisteredTimeZoneChangedReceiver = true;
+            IntentFilter timeZoneChangedIntentFilter = new IntentFilter(Intent.ACTION_TIMEZONE_CHANGED);
+            SunshineWatchFaceService.this.registerReceiver(timeZoneReceiver, timeZoneChangedIntentFilter);
         }
 
         public boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
+        }
+
+        private class TimeZoneReceiver extends BroadcastReceiver {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                timer.updateTimeZone(TimeZone.getDefault());
+                invalidate();
+            }
         }
     }
 }

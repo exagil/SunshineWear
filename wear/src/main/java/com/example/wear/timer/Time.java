@@ -6,12 +6,12 @@ import java.util.TimeZone;
 public class Time {
     private final Calendar calendar;
 
-    public static Time now() {
-        return new Time(System.currentTimeMillis());
+    public static Time now(TimeZone timeZone) {
+        return new Time(System.currentTimeMillis(), timeZone);
     }
 
-    private Time(long currentTimeInMillis) {
-        calendar = Calendar.getInstance(TimeZone.getDefault());
+    private Time(long currentTimeInMillis, TimeZone timeZone) {
+        calendar = Calendar.getInstance(timeZone);
         calendar.setTimeInMillis(currentTimeInMillis);
     }
 

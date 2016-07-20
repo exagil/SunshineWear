@@ -20,7 +20,7 @@ public class TimeViewModelTest {
 
     @Test
     public void testThatTimeViewModelKnowsItsAssociatedHour() {
-        Time time = Time.now();
+        Time time = Time.now(TimeZone.getDefault());
         TimeViewModel timeViewModel = new TimeViewModel(time);
         int expectedHour = calendar.get(Calendar.HOUR);
         assertEquals(String.valueOf(expectedHour), timeViewModel.hour());
@@ -28,7 +28,7 @@ public class TimeViewModelTest {
 
     @Test
     public void testThatTimeViewModelKnowsItsAssociatedMinute() {
-        Time time = Time.now();
+        Time time = Time.now(TimeZone.getDefault());
         TimeViewModel timeViewModel = new TimeViewModel(time);
         int expectedMinutes = calendar.get(Calendar.MINUTE);
         assertEquals(String.valueOf(expectedMinutes), timeViewModel.minutes());
@@ -36,7 +36,7 @@ public class TimeViewModelTest {
 
     @Test
     public void testThatTimeViewModelKnowsItsAssociatedSecond() {
-        Time time = Time.now();
+        Time time = Time.now(TimeZone.getDefault());
         TimeViewModel timeViewModel = new TimeViewModel(time);
         int expectedSeconds = calendar.get(Calendar.SECOND);
         assertEquals(String.valueOf(expectedSeconds), timeViewModel.seconds());
