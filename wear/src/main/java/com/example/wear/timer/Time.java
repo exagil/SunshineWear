@@ -14,4 +14,16 @@ public class Time {
         calendar = Calendar.getInstance(TimeZone.getDefault());
         calendar.setTimeInMillis(currentTimeInMillis);
     }
+
+    public int hour() {
+        return calendar.get(Calendar.HOUR);
+    }
+
+    public int minute() {
+        return calendar.get(Calendar.MINUTE);
+    }
+
+    public int second() {
+        return calendar.get(Calendar.SECOND);
+    }
 }
