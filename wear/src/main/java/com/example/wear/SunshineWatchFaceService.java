@@ -111,7 +111,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawWatchface(Canvas canvas, TimeViewModel timeViewModel, float centerY, float centerX) {
-            setBackgroundAsBlack(canvas);
+            setBackgroundAsSunshineBlue(canvas);
             Paint textPaint = textPaint();
             String formattedTime = timeViewModel.formattedTime();
             String formattedDate = timeViewModel.formattedDate();
@@ -127,9 +127,9 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             return paint;
         }
 
-        private void setBackgroundAsBlack(Canvas canvas) {
+        private void setBackgroundAsSunshineBlue(Canvas canvas) {
             Paint backgroundPaint = new Paint();
-            backgroundPaint.setColor(getResources().getColor(R.color.black));
+            backgroundPaint.setColor(getResources().getColor(R.color.sunshine_blue));
             canvas.drawPaint(backgroundPaint);
         }
 
