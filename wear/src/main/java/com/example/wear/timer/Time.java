@@ -4,10 +4,12 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 public class Time {
+    public static long currentTimeInMillis;
     private final Calendar calendar;
 
     public static Time now(TimeZone timeZone) {
-        return new Time(System.currentTimeMillis(), timeZone);
+        currentTimeInMillis = System.currentTimeMillis();
+        return new Time(currentTimeInMillis, timeZone);
     }
 
     private Time(long currentTimeInMillis, TimeZone timeZone) {

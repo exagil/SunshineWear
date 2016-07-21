@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
@@ -59,21 +60,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             float centerY = height / 2f;
             float centerX = width / 2f;
 
-            Paint backgroundPaint = new Paint();
-            backgroundPaint.setColor(getResources().getColor(R.color.black));
-            canvas.drawPaint(backgroundPaint);
-
-            String hour = timeViewModel.hour();
-            String minutes = timeViewModel.minutes();
-            String seconds = timeViewModel.seconds();
-
-            Paint paint = new Paint();
-            paint.setColor(getResources().getColor(R.color.white));
-            paint.setAntiAlias(true);
-
-            canvas.drawText(hour, centerX - 40, centerY, paint);
-            canvas.drawText(minutes, centerX, centerY, paint);
-            canvas.drawText(seconds, centerX + 40, centerY, paint);
+            drawWatchface(canvas, timeViewModel, centerY, centerX);
         }
 
         @Override
@@ -115,11 +102,49 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private class TimeZoneReceiver extends BroadcastReceiver {
+
             @Override
             public void onReceive(Context context, Intent intent) {
                 timer.updateTimeZone(TimeZone.getDefault());
                 invalidate();
             }
+        }
+
+        private void drawWatchface(Canvas canvas, TimeViewModel timeViewModel, float centerY, float centerX) {
+            setBackgroundAsBlack(canvas);
+            Paint textPaint = textPaint();
+            String formattedTime = timeViewModel.formattedTime();
+            String formattedDate = timeViewModel.formattedDate();
+            drawTime(canvas, formattedTime, centerX, centerY, textPaint);
+            drawDateBelowTime(canvas, formattedDate, centerX, centerY, textPaint);
+        }
+
+        @NonNull
+        private Paint textPaint() {
+            Paint paint = new Paint();
+            paint.setColor(getResources().getColor(R.color.white));
+            paint.setAntiAlias(true);
+            return paint;
+        }
+
+        private void setBackgroundAsBlack(Canvas canvas) {
+            Paint backgroundPaint = new Paint();
+            backgroundPaint.setColor(getResources().getColor(R.color.black));
+            canvas.drawPaint(backgroundPaint);
+        }
+
+        private void drawTime(Canvas canvas, String formattedTime, float centerX, float centerY, Paint paint) {
+            float positionOnXCoordinate = centerX - (widthOfText(formattedTime) / 2f);
+            canvas.drawText(formattedTime, positionOnXCoordinate, centerY, paint);
+        }
+
+        private void drawDateBelowTime(Canvas canvas, String formattedDate, float centerX, float centerY, Paint paint) {
+            float positionOnXCoordinate = centerX - (widthOfText(formattedDate) / 2f);
+            canvas.drawText(formattedDate, positionOnXCoordinate, centerY + 30, paint);
+        }
+
+        private float widthOfText(String text) {
+            return new Paint().measureText(text, 0, text.length());
         }
     }
 }

@@ -1,21 +1,28 @@
 package com.example.wear.timer;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class TimeViewModel {
+    public static final String DATE_PATTERN = "EEE, MMM dd yyyy";
+    public static final String COLON = " : ";
     private Time time;
 
     public TimeViewModel(Time time) {
         this.time = time;
     }
 
-    public String seconds() {
-        return String.valueOf(time.seconds());
+    public String formattedDate() {
+        return format(DATE_PATTERN);
     }
 
-    public String minutes() {
-        return String.valueOf(time.minutes());
+    public String formattedTime() {
+        return time.hour() + COLON + time.minutes() + COLON + time.seconds();
     }
 
-    public String hour() {
-        return String.valueOf(time.hour());
+    private String format(String pattern) {
+        Date date = new Date();
+        date.setTime(time.currentTimeInMillis);
+        return new SimpleDateFormat(pattern).format(date);
     }
 }

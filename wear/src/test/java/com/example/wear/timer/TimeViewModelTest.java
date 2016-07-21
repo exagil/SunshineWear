@@ -3,7 +3,9 @@ package com.example.wear.timer;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
@@ -19,26 +21,22 @@ public class TimeViewModelTest {
     }
 
     @Test
-    public void testThatTimeViewModelKnowsItsAssociatedHour() {
+    public void testThatItKnowsHowToBuildAFormattedDate() {
         Time time = Time.now(TimeZone.getDefault());
+        Date date = new Date();
+        date.setTime(time.currentTimeInMillis);
+        String expectedFormattedDate = new SimpleDateFormat("EEE, MMM d yyyy").format(date);
         TimeViewModel timeViewModel = new TimeViewModel(time);
-        int expectedHour = calendar.get(Calendar.HOUR);
-        assertEquals(String.valueOf(expectedHour), timeViewModel.hour());
+        assertEquals(expectedFormattedDate, timeViewModel.formattedDate());
     }
 
     @Test
-    public void testThatTimeViewModelKnowsItsAssociatedMinute() {
+    public void testThatItKnowsHowToBuildAFormattedTime() {
         Time time = Time.now(TimeZone.getDefault());
+        int hour = calendar.get(Calendar.HOUR);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
         TimeViewModel timeViewModel = new TimeViewModel(time);
-        int expectedMinutes = calendar.get(Calendar.MINUTE);
-        assertEquals(String.valueOf(expectedMinutes), timeViewModel.minutes());
-    }
-
-    @Test
-    public void testThatTimeViewModelKnowsItsAssociatedSecond() {
-        Time time = Time.now(TimeZone.getDefault());
-        TimeViewModel timeViewModel = new TimeViewModel(time);
-        int expectedSeconds = calendar.get(Calendar.SECOND);
-        assertEquals(String.valueOf(expectedSeconds), timeViewModel.seconds());
+        assertEquals(hour + " : " + minute + " : " + second, timeViewModel.formattedTime());
     }
 }
