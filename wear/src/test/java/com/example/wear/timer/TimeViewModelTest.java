@@ -1,7 +1,6 @@
 package com.example.wear.timer;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,17 +32,6 @@ public class TimeViewModelTest {
     }
 
     @Test
-    @Ignore
-    public void testThatItKnowsHowToBuildAFormattedTime() {
-        Time time = Time.now(TimeZone.getDefault());
-        int hour = calendar.get(Calendar.HOUR);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
-        TimeViewModel timeViewModel = new TimeViewModel(time);
-        assertEquals(hour + " : " + minute + " : " + second, timeViewModel.formattedTime());
-    }
-
-    @Test
     public void testThatItKnowsHowToPrependZeroToHourIfHourIsLessThanTen() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.hour()).thenReturn(4);
@@ -62,17 +50,6 @@ public class TimeViewModelTest {
         Mockito.when(time.seconds()).thenReturn(24);
         TimeViewModel timeViewModel = new TimeViewModel(time);
         String expectedFormattedTime = "10 : 37 : 24";
-        assertEquals(expectedFormattedTime, timeViewModel.formattedTime());
-    }
-
-    @Test
-    public void testThatItKnowsNotToPrependZeroToHourIfHourIsMoreThanTen() {
-        Time time = Mockito.mock(Time.class);
-        Mockito.when(time.hour()).thenReturn(11);
-        Mockito.when(time.minutes()).thenReturn(37);
-        Mockito.when(time.seconds()).thenReturn(24);
-        TimeViewModel timeViewModel = new TimeViewModel(time);
-        String expectedFormattedTime = "11 : 37 : 24";
         assertEquals(expectedFormattedTime, timeViewModel.formattedTime());
     }
 
@@ -99,17 +76,6 @@ public class TimeViewModelTest {
     }
 
     @Test
-    public void testThatItKnowsNotToPrependZeroToMinutesIfMinutesIsMoreThanTen() {
-        Time time = Mockito.mock(Time.class);
-        Mockito.when(time.hour()).thenReturn(11);
-        Mockito.when(time.minutes()).thenReturn(37);
-        Mockito.when(time.seconds()).thenReturn(24);
-        TimeViewModel timeViewModel = new TimeViewModel(time);
-        String expectedFormattedTime = "11 : 37 : 24";
-        assertEquals(expectedFormattedTime, timeViewModel.formattedTime());
-    }
-
-    @Test
     public void testThatItKnowsHowToPrependZeroToSecondsIfSecondsIsLessThanTen() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.hour()).thenReturn(20);
@@ -132,7 +98,7 @@ public class TimeViewModelTest {
     }
 
     @Test
-    public void testThatItKnowsNotToPrependZeroToSecondsIfSecondsIsMoreThanTen() {
+    public void testThatItKnowsNotToPrependZeroToEitherOfHoursMinutesOrSecondsIfAllAreMoreThanTen() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.hour()).thenReturn(11);
         Mockito.when(time.minutes()).thenReturn(37);

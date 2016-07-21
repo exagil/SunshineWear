@@ -17,12 +17,18 @@ public class TimeViewModel {
     }
 
     public String formattedTime() {
-        return String.format("%02d", time.hour()) + COLON + String.format("%02d", time.minutes()) + COLON + String.format("%02d", time.seconds());
+        return formatWithPadding(time.hour()) + COLON +
+                formatWithPadding(time.minutes()) + COLON +
+                formatWithPadding(time.seconds());
     }
 
     private String format(String pattern) {
         Date date = new Date();
         date.setTime(time.currentTimeInMillis);
         return new SimpleDateFormat(pattern).format(date);
+    }
+
+    private String formatWithPadding(int hour) {
+        return String.format("%02d", hour);
     }
 }
