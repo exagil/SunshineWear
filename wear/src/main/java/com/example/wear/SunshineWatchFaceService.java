@@ -134,13 +134,16 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawTime(Canvas canvas, String formattedTime, float centerX, float centerY, Paint paint) {
-            float positionOnXCoordinate = centerX - (widthOfText(formattedTime) / 2f);
-            canvas.drawText(formattedTime, positionOnXCoordinate, centerY, paint);
+            drawText(canvas, formattedTime, centerX, paint, centerY);
         }
 
         private void drawDateBelowTime(Canvas canvas, String formattedDate, float centerX, float centerY, Paint paint) {
-            float positionOnXCoordinate = centerX - (widthOfText(formattedDate) / 2f);
-            canvas.drawText(formattedDate, positionOnXCoordinate, centerY + 30, paint);
+            drawText(canvas, formattedDate, centerX, paint, centerY + 30);
+        }
+
+        private void drawText(Canvas canvas, String text, float centerX, Paint paint, float positionY) {
+            float positionOnXCoordinate = centerX - (widthOfText(text) / 2f);
+            canvas.drawText(text, positionOnXCoordinate, positionY, paint);
         }
 
         private float widthOfText(String text) {
