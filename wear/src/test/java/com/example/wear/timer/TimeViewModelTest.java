@@ -77,7 +77,7 @@ public class TimeViewModelTest {
     }
 
     @Test
-    public void testThatItKnowsHowToPrependZeroToMinuteIfMinuteIsLessThanTen() {
+    public void testThatItKnowsHowToPrependZeroToMinutesIfMinutesIsLessThanTen() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.hour()).thenReturn(20);
         Mockito.when(time.minutes()).thenReturn(7);
@@ -88,7 +88,7 @@ public class TimeViewModelTest {
     }
 
     @Test
-    public void testThatItKnowsNotToPrependZeroToMinuteIfMinuteIsEqualToTen() {
+    public void testThatItKnowsNotToPrependZeroToMinutesIfMinutesIsEqualToTen() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.hour()).thenReturn(10);
         Mockito.when(time.minutes()).thenReturn(10);
@@ -99,7 +99,40 @@ public class TimeViewModelTest {
     }
 
     @Test
-    public void testThatItKnowsNotToPrependZeroToMinuteIfMinuteIsMoreThanTen() {
+    public void testThatItKnowsNotToPrependZeroToMinutesIfMinutesIsMoreThanTen() {
+        Time time = Mockito.mock(Time.class);
+        Mockito.when(time.hour()).thenReturn(11);
+        Mockito.when(time.minutes()).thenReturn(37);
+        Mockito.when(time.seconds()).thenReturn(24);
+        TimeViewModel timeViewModel = new TimeViewModel(time);
+        String expectedFormattedTime = "11 : 37 : 24";
+        assertEquals(expectedFormattedTime, timeViewModel.formattedTime());
+    }
+
+    @Test
+    public void testThatItKnowsHowToPrependZeroToSecondsIfSecondsIsLessThanTen() {
+        Time time = Mockito.mock(Time.class);
+        Mockito.when(time.hour()).thenReturn(20);
+        Mockito.when(time.minutes()).thenReturn(15);
+        Mockito.when(time.seconds()).thenReturn(4);
+        TimeViewModel timeViewModel = new TimeViewModel(time);
+        String expectedFormattedTime = "20 : 15 : 04";
+        assertEquals(expectedFormattedTime, timeViewModel.formattedTime());
+    }
+
+    @Test
+    public void testThatItKnowsNotToPrependZeroToSecondsIfSecondsIsEqualToTen() {
+        Time time = Mockito.mock(Time.class);
+        Mockito.when(time.hour()).thenReturn(12);
+        Mockito.when(time.minutes()).thenReturn(12);
+        Mockito.when(time.seconds()).thenReturn(10);
+        TimeViewModel timeViewModel = new TimeViewModel(time);
+        String expectedFormattedTime = "12 : 12 : 10";
+        assertEquals(expectedFormattedTime, timeViewModel.formattedTime());
+    }
+
+    @Test
+    public void testThatItKnowsNotToPrependZeroToSecondsIfSecondsIsMoreThanTen() {
         Time time = Mockito.mock(Time.class);
         Mockito.when(time.hour()).thenReturn(11);
         Mockito.when(time.minutes()).thenReturn(37);

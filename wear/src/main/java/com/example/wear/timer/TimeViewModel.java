@@ -17,7 +17,7 @@ public class TimeViewModel {
     }
 
     public String formattedTime() {
-        return String.format("%02d", time.hour()) + COLON + String.format("%02d", time.minutes()) + COLON + time.seconds();
+        return String.format("%02d", time.hour()) + COLON + String.format("%02d", time.minutes()) + COLON + String.format("%02d", time.seconds());
     }
 
     private String format(String pattern) {
