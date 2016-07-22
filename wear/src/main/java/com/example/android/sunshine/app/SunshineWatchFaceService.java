@@ -1,4 +1,4 @@
-package com.example.wear;
+package com.example.android.sunshine.app;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,9 +12,10 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
 
-import com.example.wear.timer.Time;
-import com.example.wear.timer.TimeViewModel;
-import com.example.wear.timer.Timer;
+import com.example.android.R;
+import com.example.android.sunshine.app.timer.Time;
+import com.example.android.sunshine.app.timer.TimeViewModel;
+import com.example.android.sunshine.app.timer.Timer;
 
 import java.util.TimeZone;
 

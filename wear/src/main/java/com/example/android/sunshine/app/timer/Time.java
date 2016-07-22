@@ -1,4 +1,4 @@
-package com.example.wear.timer;
+package com.example.android.sunshine.app.timer;
 
 import java.util.Calendar;
 import java.util.TimeZone;

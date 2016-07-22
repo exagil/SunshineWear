@@ -1,10 +1,10 @@
-package com.example.wear.timer;
+package com.example.android.sunshine.app.timer;
 
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 
-import com.example.wear.SunshineWatchFaceService;
+import com.example.android.sunshine.app.SunshineWatchFaceService;
 
 public class TimeHandlerCallback implements Handler.Callback {
     private Integer updateInterval;
