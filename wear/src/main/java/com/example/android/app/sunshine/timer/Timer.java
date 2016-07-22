@@ -1,19 +1,18 @@
-package com.example.wear.timer;
+package com.example.android.app.sunshine.timer;
 
 import android.os.Handler;
 import android.support.annotation.NonNull;
 
-import com.example.wear.SunshineWatchFaceService;
+import com.example.android.app.sunshine.SunshineWatchFaceService;
 
 import java.util.TimeZone;
 
 public class Timer extends Handler {
-    private static int MESSAGE_UPDATE_TIME = 0;
     private static SunshineWatchFaceService.SunshineWatchFaceEngine engine;
     private TimeZone timeZone = TimeZone.getDefault();
 
     public static Timer getInstance(@NonNull Integer updateInterval, SunshineWatchFaceService.SunshineWatchFaceEngine engine) {
-        TimeHandlerCallback timeHandlerCallback = new TimeHandlerCallback(updateInterval, MESSAGE_UPDATE_TIME, engine);
+        TimeHandlerCallback timeHandlerCallback = new TimeHandlerCallback(updateInterval, engine);
         Timer timer = new Timer(timeHandlerCallback, engine);
         timeHandlerCallback.setTimeHandler(timer);
         return timer;
@@ -25,9 +24,13 @@ public class Timer extends Handler {
     }
 
     public void update() {
-        this.removeMessages(MESSAGE_UPDATE_TIME);
-        if (engine.shouldTimerBeRunning())
-            this.sendEmptyMessage(MESSAGE_UPDATE_TIME);
+        this.removeMessages(TimerMessage.MESSAGE_UPDATE_TIME);
+        this.removeMessages(TimerMessage.MESSAGE_UPDATE_WEATHER);
+
+        if (engine.shouldTimerBeRunning()) {
+            this.sendEmptyMessage(TimerMessage.MESSAGE_UPDATE_TIME);
+            this.sendEmptyMessage(TimerMessage.MESSAGE_UPDATE_WEATHER);
+        }
     }
 
     public Time getTime() {
