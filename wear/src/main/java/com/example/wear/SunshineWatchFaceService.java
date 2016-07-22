@@ -1,4 +1,4 @@
-package com.example.android.app.sunshine;
+package com.example.wear;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,25 +7,14 @@ import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
-import com.example.android.app.sunshine.timer.Time;
-import com.example.android.app.sunshine.timer.TimeViewModel;
-import com.example.android.app.sunshine.timer.Timer;
-import com.example.android.app.sunshine.timer.TimerMessage;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.Wearable;
+import com.example.wear.timer.Time;
+import com.example.wear.timer.TimeViewModel;
+import com.example.wear.timer.Timer;
 
 import java.util.TimeZone;
 
@@ -35,35 +24,17 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         return new SunshineWatchFaceEngine();
     }
 
-    public class SunshineWatchFaceEngine extends CanvasWatchFaceService.Engine implements
-            GoogleApiClient.ConnectionCallbacks,
-            GoogleApiClient.OnConnectionFailedListener,
-            DataApi.DataListener {
-
+    public class SunshineWatchFaceEngine extends CanvasWatchFaceService.Engine {
         public static final int TIME_UPDATE_INTERVAL = 500;
-        public static final String BLABLA = ".*blabla$";
         private Timer timer;
         private boolean hasRegisteredTimeZoneChangedReceiver;
         private TimeZoneReceiver timeZoneReceiver;
-        private GoogleApiClient googleApiClient;
-
-        public void triggerTimeUpdate(Integer updateInterval, Handler handler) {
-            long currentTimeInMillis = System.currentTimeMillis();
-            long timeInMillisToUpdateIn = updateInterval - (currentTimeInMillis % updateInterval);
-            handler.sendEmptyMessageDelayed(TimerMessage.MESSAGE_UPDATE_TIME, timeInMillisToUpdateIn);
-        }
 
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
             this.timer = Timer.getInstance(TIME_UPDATE_INTERVAL, this);
             timeZoneReceiver = new TimeZoneReceiver();
-            googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(Wearable.API)
-                    .build();
-            googleApiClient.connect();
         }
 
         @Override
@@ -130,34 +101,8 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             return isVisible() && !isInAmbientMode();
         }
 
-        public void triggerWeatherUpdate(Integer updateInterval, Handler handler) {
-            // new WeatherUpdateExecutor(googleApiClient).run();
-            handler.sendEmptyMessageDelayed(TimerMessage.MESSAGE_UPDATE_WEATHER, updateInterval);
-        }
-
-        @Override
-        public void onConnected(@Nullable Bundle bundle) {
-            Wearable.DataApi.addListener(googleApiClient, this);
-        }
-
-        @Override
-        public void onConnectionSuspended(int i) {
-
-        }
-
-        @Override
-        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-        }
-
-        @Override
-        public void onDataChanged(DataEventBuffer dataEventBuffer) {
-            for (DataEvent dataEvent : dataEventBuffer) {
-                String dataEventUriString = dataEvent.getDataItem().getUri().toString();
-            }
-        }
-
         private class TimeZoneReceiver extends BroadcastReceiver {
+
             @Override
             public void onReceive(Context context, Intent intent) {
                 timer.updateTimeZone(TimeZone.getDefault());

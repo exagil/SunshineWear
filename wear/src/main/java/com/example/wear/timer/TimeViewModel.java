@@ -1,4 +1,4 @@
-package com.example.android.app.sunshine.timer;
+package com.example.wear.timer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,33 +1,35 @@
-package com.example.android.app.sunshine.timer;
+package com.example.wear.timer;
 
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 
-import com.example.android.app.sunshine.SunshineWatchFaceService;
+import com.example.wear.SunshineWatchFaceService;
 
 public class TimeHandlerCallback implements Handler.Callback {
     private Integer updateInterval;
+    private int messageKey;
     private SunshineWatchFaceService.SunshineWatchFaceEngine engine;
     private Handler handler;
 
     public TimeHandlerCallback(@NonNull Integer updateInterval,
+                               int messageKey,
                                SunshineWatchFaceService.SunshineWatchFaceEngine engine) {
 
         this.updateInterval = updateInterval;
+        this.messageKey = messageKey;
         this.engine = engine;
     }
 
     @Override
     public boolean handleMessage(Message message) {
-        engine.invalidate();
-        if (!engine.shouldTimerBeRunning()) return false;
-        switch (message.what) {
-            case TimerMessage.MESSAGE_UPDATE_TIME:
-                engine.triggerTimeUpdate(updateInterval, handler);
-                break;
-            case TimerMessage.MESSAGE_UPDATE_WEATHER:
-                engine.triggerWeatherUpdate(updateInterval, handler);
+        if (message.what == this.messageKey) {
+            engine.invalidate();
+            if (engine.shouldTimerBeRunning()) {
+                long currentTimeInMillis = System.currentTimeMillis();
+                long timeInMillisToUpdateIn = updateInterval - (currentTimeInMillis % updateInterval);
+                handler.sendEmptyMessageDelayed(this.messageKey, timeInMillisToUpdateIn);
+            }
         }
         return false;
     }
