@@ -7,14 +7,22 @@ import android.content.IntentFilter;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.example.android.sunshine.app.timer.Time;
 import com.example.android.sunshine.app.timer.TimeViewModel;
 import com.example.android.sunshine.app.timer.Timer;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.Wearable;
 
 import java.util.TimeZone;
 
@@ -24,17 +32,28 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         return new SunshineWatchFaceEngine();
     }
 
-    public class SunshineWatchFaceEngine extends CanvasWatchFaceService.Engine {
+    public class SunshineWatchFaceEngine extends CanvasWatchFaceService.Engine implements
+            GoogleApiClient.ConnectionCallbacks,
+            GoogleApiClient.OnConnectionFailedListener,
+            DataApi.DataListener {
+
         public static final int TIME_UPDATE_INTERVAL = 500;
         private Timer timer;
         private boolean hasRegisteredTimeZoneChangedReceiver;
         private TimeZoneReceiver timeZoneReceiver;
+        private GoogleApiClient googleApiClient;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
             this.timer = Timer.getInstance(TIME_UPDATE_INTERVAL, this);
             timeZoneReceiver = new TimeZoneReceiver();
+            googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(Wearable.API)
+                    .build();
+            googleApiClient.connect();
         }
 
         @Override
@@ -99,6 +118,26 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
 
         public boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
+        }
+
+        @Override
+        public void onConnected(@Nullable Bundle bundle) {
+            Wearable.DataApi.addListener(googleApiClient, this);
+        }
+
+        @Override
+        public void onConnectionSuspended(int i) {
+
+        }
+
+        @Override
+        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+        }
+
+        @Override
+        public void onDataChanged(DataEventBuffer dataEventBuffer) {
+            Log.d("chi6rag", "rpc successful");
         }
 
         private class TimeZoneReceiver extends BroadcastReceiver {
