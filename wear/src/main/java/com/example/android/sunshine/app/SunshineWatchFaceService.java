@@ -12,7 +12,6 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
 
-import com.example.android.R;
 import com.example.android.sunshine.app.timer.Time;
 import com.example.android.sunshine.app.timer.TimeViewModel;
 import com.example.android.sunshine.app.timer.Timer;
