@@ -1,4 +1,4 @@
-package com.example.android.sunshine.app.timer;
+package com.example.android.sunshine.app.watch.timer;
 
 import android.os.Handler;
 import android.os.Message;
