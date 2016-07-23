@@ -47,8 +47,8 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         private boolean hasRegisteredTimeZoneChangedReceiver;
         private TimeZoneReceiver timeZoneReceiver;
         private GoogleApiClient googleApiClient;
-        private double high;
-        private double low;
+        private Double high = Double.NaN;
+        private Double low = Double.NaN;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -199,6 +199,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, double high, double low) {
+            if (Double.isNaN(high) && Double.isNaN(low)) return;
             drawText(canvas, high + "  |  " + low, centerX, textPaint(), centerY + 30);
         }
 
