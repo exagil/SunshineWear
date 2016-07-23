@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.example.android.sunshine.app.timer.Time;
@@ -223,16 +224,41 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             Paint textPaint = textPaint();
             String formattedTime = timeViewModel.formattedTime();
             String formattedDate = timeViewModel.formattedDate();
-            drawTime(canvas, formattedTime, centerX, centerY, textPaint);
-            drawDateBelowTime(canvas, formattedDate, centerX, centerY, textPaint);
-            if (!isInAmbientMode) drawWeatherInformation(canvas, centerX, centerY, high, low);
+            drawTime(canvas, formattedTime, centerX, centerY, bigTextPaint());
+            drawDateBelowTime(canvas, formattedDate, centerX, centerY, bigTextPaint());
+            drawHorizontalPartition(canvas, centerX, centerY);
+            drawWeatherInformation(canvas, centerX, centerY, high, low);
         }
 
-        private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, double high, double low) {
+        private void drawHorizontalPartition(Canvas canvas, float centerX, float centerY) {
+            float xCoordinateFactor = (centerX / 5) * 2;
+            float startPoint = xCoordinateFactor * 2;
+            float endPoint = xCoordinateFactor * 3;
+            canvas.drawLine(startPoint, centerY, endPoint, centerY, textPaint());
+        }
+
+        private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, Double high, Double low) {
             if (Double.isNaN(high) && Double.isNaN(low)) return;
-            drawText(canvas, high + "  |  " + low, centerX, textPaint(), centerY + 30);
-            if (weatherIcon != null)
-                canvas.drawBitmap(weatherIcon, centerX - 30, centerX + 30, textPaint());
+            String highTemperature = high.toString().substring(0, 2);
+            String lowTemperature = low.toString().substring(0, 2);
+            Log.d("chi6rag", "" + highTemperature);
+            Log.d("chi6rag", "" + lowTemperature);
+            drawText(canvas, highTemperature, centerX, bigTextPaint(), centerY + 80);
+            drawText(canvas, lowTemperature, centerX + 60, bigTextPaint(), centerY + 80);
+            if (isWeatherIconPresent())
+                canvas.drawBitmap(weatherIcon, centerX - 110, centerY + 30, textPaint());
+        }
+
+        private Paint bigTextPaint() {
+            Paint paint = new Paint();
+            paint.setColor(getResources().getColor(R.color.white));
+            paint.setTextSize(24);
+            paint.setAntiAlias(true);
+            return paint;
+        }
+
+        private boolean isWeatherIconPresent() {
+            return weatherIcon != null;
         }
 
         @NonNull
@@ -250,18 +276,17 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             else
                 backgroundPaint.setColor(getResources().getColor(R.color.black));
             canvas.drawPaint(backgroundPaint);
-
         }
 
         private void drawTime(Canvas canvas, String formattedTime, float centerX, float centerY, Paint paint) {
-            drawText(canvas, formattedTime, centerX, paint, centerY - 30);
+            drawText(canvas, formattedTime, centerX, paint, centerY - 70);
         }
 
         private void drawDateBelowTime(Canvas canvas, String formattedDate, float centerX, float centerY, Paint paint) {
-            drawText(canvas, formattedDate, centerX, paint, centerY);
+            drawText(canvas, formattedDate, centerX, paint, centerY - 30);
         }
 
-        private void drawText(Canvas canvas, String text, float centerX, Paint paint, float positionY) {
+        private void drawText(Canvas canvas, @NonNull String text, float centerX, Paint paint, float positionY) {
             float positionOnXCoordinate = centerX - (widthOfText(text) / 2f);
             canvas.drawText(text, positionOnXCoordinate, positionY, paint);
         }
