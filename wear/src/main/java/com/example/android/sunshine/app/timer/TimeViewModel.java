@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class TimeViewModel {
     public static final String DATE_PATTERN = "EEE, MMM dd yyyy";
-    public static final String COLON = " : ";
+    public static final String COLON = ":";
     private Time time;
 
     public TimeViewModel(Time time) {
@@ -18,8 +18,7 @@ public class TimeViewModel {
 
     public String formattedTime() {
         return formatWithPadding(time.hour()) + COLON +
-                formatWithPadding(time.minutes()) + COLON +
-                formatWithPadding(time.seconds());
+                formatWithPadding(time.minutes());
     }
 
     private String format(String pattern) {

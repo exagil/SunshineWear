@@ -14,7 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.example.android.sunshine.app.timer.Time;
@@ -221,11 +220,10 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         private void drawWatchface(Canvas canvas, TimeViewModel timeViewModel, float centerY, float centerX) {
             boolean isInAmbientMode = isInAmbientMode();
             setBackground(canvas, isInAmbientMode);
-            Paint textPaint = textPaint();
             String formattedTime = timeViewModel.formattedTime();
             String formattedDate = timeViewModel.formattedDate();
-            drawTime(canvas, formattedTime, centerX, centerY, bigTextPaint());
-            drawDateBelowTime(canvas, formattedDate, centerX, centerY, bigTextPaint());
+            drawTime(canvas, formattedTime, centerX, centerY, bigTextPaint(56));
+            drawDateBelowTime(canvas, formattedDate, centerX, centerY, bigTextPaint(24));
             drawHorizontalPartition(canvas, centerX, centerY);
             drawWeatherInformation(canvas, centerX, centerY, high, low);
         }
@@ -234,25 +232,23 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             float xCoordinateFactor = (centerX / 5) * 2;
             float startPoint = xCoordinateFactor * 2;
             float endPoint = xCoordinateFactor * 3;
-            canvas.drawLine(startPoint, centerY, endPoint, centerY, textPaint());
+            canvas.drawLine(startPoint, centerY + 20, endPoint, centerY + 20, textPaint());
         }
 
         private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, Double high, Double low) {
             if (Double.isNaN(high) && Double.isNaN(low)) return;
             String highTemperature = high.toString().substring(0, 2);
             String lowTemperature = low.toString().substring(0, 2);
-            Log.d("chi6rag", "" + highTemperature);
-            Log.d("chi6rag", "" + lowTemperature);
-            drawText(canvas, highTemperature, centerX, bigTextPaint(), centerY + 80);
-            drawText(canvas, lowTemperature, centerX + 60, bigTextPaint(), centerY + 80);
+            drawText(canvas, highTemperature, centerX, bigTextPaint(32), centerY + 80);
+            drawText(canvas, lowTemperature, centerX + 60, bigTextPaint(32), centerY + 80);
             if (isWeatherIconPresent())
                 canvas.drawBitmap(weatherIcon, centerX - 110, centerY + 30, textPaint());
         }
 
-        private Paint bigTextPaint() {
+        private Paint bigTextPaint(int textSize) {
             Paint paint = new Paint();
             paint.setColor(getResources().getColor(R.color.white));
-            paint.setTextSize(24);
+            paint.setTextSize(textSize);
             paint.setAntiAlias(true);
             return paint;
         }
@@ -279,20 +275,20 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawTime(Canvas canvas, String formattedTime, float centerX, float centerY, Paint paint) {
-            drawText(canvas, formattedTime, centerX, paint, centerY - 70);
+            drawText(canvas, formattedTime, centerX, paint, centerY - 50);
         }
 
         private void drawDateBelowTime(Canvas canvas, String formattedDate, float centerX, float centerY, Paint paint) {
-            drawText(canvas, formattedDate, centerX, paint, centerY - 30);
+            drawText(canvas, formattedDate, centerX, paint, centerY - 5);
         }
 
         private void drawText(Canvas canvas, @NonNull String text, float centerX, Paint paint, float positionY) {
-            float positionOnXCoordinate = centerX - (widthOfText(text) / 2f);
+            float positionOnXCoordinate = centerX - (widthOfText(text, paint) / 2f);
             canvas.drawText(text, positionOnXCoordinate, positionY, paint);
         }
 
-        private float widthOfText(String text) {
-            return new Paint().measureText(text, 0, text.length());
+        private float widthOfText(String text, Paint paint) {
+            return paint.measureText(text, 0, text.length());
         }
     }
 }
