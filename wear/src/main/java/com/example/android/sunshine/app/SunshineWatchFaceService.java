@@ -12,7 +12,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.example.android.sunshine.app.timer.Time;
@@ -21,7 +20,11 @@ import com.example.android.sunshine.app.timer.Timer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataMap;
+import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.TimeZone;
@@ -42,6 +45,8 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         private boolean hasRegisteredTimeZoneChangedReceiver;
         private TimeZoneReceiver timeZoneReceiver;
         private GoogleApiClient googleApiClient;
+        private double high;
+        private double low;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -137,7 +142,14 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDataChanged(DataEventBuffer dataEventBuffer) {
-            Log.d("chi6rag", "rpc successful");
+            for (DataEvent dataEvent : dataEventBuffer) {
+                DataItem weatherDataItem = dataEvent.getDataItem();
+                DataMapItem weatherDataMapItem = DataMapItem.fromDataItem(weatherDataItem);
+                DataMap weatherDataMap = weatherDataMapItem.getDataMap();
+                high = weatherDataMap.getDouble(WeatherRequestKeys.HIGH);
+                low = weatherDataMap.getDouble(WeatherRequestKeys.LOW);
+            }
+            invalidate();
         }
 
         private class TimeZoneReceiver extends BroadcastReceiver {
@@ -156,6 +168,11 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             String formattedDate = timeViewModel.formattedDate();
             drawTime(canvas, formattedTime, centerX, centerY, textPaint);
             drawDateBelowTime(canvas, formattedDate, centerX, centerY, textPaint);
+            drawWeatherInformation(canvas, centerX, centerY, high, low);
+        }
+
+        private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, double high, double low) {
+            drawText(canvas, high + "  |  " + low, centerX, textPaint(), centerY + 30);
         }
 
         @NonNull
@@ -173,11 +190,11 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawTime(Canvas canvas, String formattedTime, float centerX, float centerY, Paint paint) {
-            drawText(canvas, formattedTime, centerX, paint, centerY);
+            drawText(canvas, formattedTime, centerX, paint, centerY - 30);
         }
 
         private void drawDateBelowTime(Canvas canvas, String formattedDate, float centerX, float centerY, Paint paint) {
-            drawText(canvas, formattedDate, centerX, paint, centerY + 30);
+            drawText(canvas, formattedDate, centerX, paint, centerY);
         }
 
         private void drawText(Canvas canvas, String text, float centerX, Paint paint, float positionY) {

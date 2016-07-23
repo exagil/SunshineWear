@@ -40,6 +40,7 @@ import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.muzei.WeatherMuzeiSource;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -398,7 +399,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
                         new String[] {Long.toString(dayTime.setJulianDay(julianStartDay-1))});
 
                 updateWidgets();
-                updateWearables();
+                updateWearables(getContext());
                 updateMuzei();
                 notifyWeather();
             }
@@ -412,12 +413,30 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
         }
     }
 
-    private void updateWearables() {
+    private void updateWearables(Context context) {
+        Cursor cursor = getWeatherCursor(context);
+        if (cursor.moveToFirst()) {
+            double high = cursor.getDouble(INDEX_MAX_TEMP);
+            double low = cursor.getDouble(INDEX_MIN_TEMP);
+            Wearable.DataApi.putDataItem(googleApiClient, buildWeatherRequest(high, low));
+        }
+    }
+
+    @NonNull
+    private PutDataRequest buildWeatherRequest(double high, double low) {
         PutDataMapRequest weatherDataMapRequest = PutDataMapRequest.create("/weather/" + System.currentTimeMillis());
-        weatherDataMapRequest.getDataMap().putString("current_weather", "cold");
+        DataMap weatherRequestDataMap = weatherDataMapRequest.getDataMap();
+        weatherRequestDataMap.putDouble("high", high);
+        weatherRequestDataMap.putDouble("low", low);
         PutDataRequest weatherRequest = weatherDataMapRequest.asPutDataRequest();
         weatherRequest.setUrgent();
-        Wearable.DataApi.putDataItem(googleApiClient, weatherRequest);
+        return weatherRequest;
+    }
+
+    private Cursor getWeatherCursor(Context context) {
+        String locationQuery = Utility.getPreferredLocation(context);
+        Uri weatherUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
+        return context.getContentResolver().query(weatherUri, NOTIFY_WEATHER_PROJECTION, null, null, null);
     }
 
     private void updateWidgets() {
@@ -453,12 +472,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
 
             if (System.currentTimeMillis() - lastSync >= DAY_IN_MILLIS) {
                 // Last sync was more than 1 day ago, let's send a notification with the weather.
-                String locationQuery = Utility.getPreferredLocation(context);
-
-                Uri weatherUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(locationQuery, System.currentTimeMillis());
-
-                // we'll query our contentProvider, as always
-                Cursor cursor = context.getContentResolver().query(weatherUri, NOTIFY_WEATHER_PROJECTION, null, null, null);
+                Cursor cursor = getWeatherCursor(context);
 
                 if (cursor.moveToFirst()) {
                     int weatherId = cursor.getInt(INDEX_WEATHER_ID);
