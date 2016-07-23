@@ -40,6 +40,7 @@ import com.example.android.sunshine.app.data.WeatherContract;
 import com.example.android.sunshine.app.muzei.WeatherMuzeiSource;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
@@ -50,6 +51,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -419,16 +421,27 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
         if (cursor.moveToFirst()) {
             double high = cursor.getDouble(INDEX_MAX_TEMP);
             double low = cursor.getDouble(INDEX_MIN_TEMP);
-            Wearable.DataApi.putDataItem(googleApiClient, buildWeatherRequest(high, low));
+            int weatherId = cursor.getInt(INDEX_WEATHER_ID);
+            Asset weatherAsset = getWeatherAsset(weatherId);
+            Wearable.DataApi.putDataItem(googleApiClient, buildWeatherRequest(high, low, weatherAsset));
         }
     }
 
+    private Asset getWeatherAsset(int weatherId) {
+        int iconId = Utility.getIconResourceForWeatherCondition(weatherId);
+        Bitmap weatherIcon = BitmapFactory.decodeResource(getContext().getResources(), iconId);
+        ByteArrayOutputStream weatherIconByteStream = new ByteArrayOutputStream();
+        weatherIcon.compress(Bitmap.CompressFormat.PNG, 100, weatherIconByteStream);
+        return Asset.createFromBytes(weatherIconByteStream.toByteArray());
+    }
+
     @NonNull
-    private PutDataRequest buildWeatherRequest(double high, double low) {
+    private PutDataRequest buildWeatherRequest(double high, double low, Asset weatherAsset) {
         PutDataMapRequest weatherDataMapRequest = PutDataMapRequest.create(PATH_DATA_WEATHER + System.currentTimeMillis());
         DataMap weatherRequestDataMap = weatherDataMapRequest.getDataMap();
         weatherRequestDataMap.putDouble("high", high);
         weatherRequestDataMap.putDouble("low", low);
+        weatherRequestDataMap.putAsset("icon", weatherAsset);
         PutDataRequest weatherRequest = weatherDataMapRequest.asPutDataRequest();
         weatherRequest.setUrgent();
         return weatherRequest;

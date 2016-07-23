@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -19,6 +21,9 @@ import com.example.android.sunshine.app.timer.TimeViewModel;
 import com.example.android.sunshine.app.timer.Timer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -29,6 +34,7 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.InputStream;
 import java.util.TimeZone;
 
 public class SunshineWatchFaceService extends CanvasWatchFaceService {
@@ -49,6 +55,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         private GoogleApiClient googleApiClient;
         private Double high = Double.NaN;
         private Double low = Double.NaN;
+        private Bitmap weatherIcon;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
@@ -163,9 +170,32 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
                     DataMap weatherDataMap = getWeatherDataMap(dataEvent);
                     high = weatherDataMap.getDouble(WeatherRequestKeys.HIGH);
                     low = weatherDataMap.getDouble(WeatherRequestKeys.LOW);
+                    fetchWeatherIconAsynchronously(weatherDataMap);
                 }
             }
             invalidate();
+        }
+
+        private void fetchWeatherIconAsynchronously(DataMap weatherDataMap) {
+            Asset iconAsset = weatherDataMap.getAsset(WeatherRequestKeys.ICON);
+            if (googleApiClient.isConnected()) {
+                PendingResult<DataApi.GetFdForAssetResult> fileDescriptorForIconAsset =
+                        Wearable.DataApi.getFdForAsset(googleApiClient, iconAsset);
+                obtainWeatherIconUsingFileDescriptor(fileDescriptorForIconAsset);
+            }
+        }
+
+        private void obtainWeatherIconUsingFileDescriptor(PendingResult<DataApi.GetFdForAssetResult> fileDescriptorForIconAsset) {
+            fileDescriptorForIconAsset.setResultCallback(new ResultCallback<DataApi.GetFdForAssetResult>() {
+                @Override
+                public void onResult(@NonNull DataApi.GetFdForAssetResult getFdForAssetResult) {
+                    InputStream weatherIconInputStream = getFdForAssetResult.getInputStream();
+                    Bitmap fetchedWeatherIcon = BitmapFactory.decodeStream(weatherIconInputStream);
+                    if (fetchedWeatherIcon == null) return;
+                    weatherIcon = fetchedWeatherIcon;
+                    invalidate();
+                }
+            });
         }
 
         private DataMap getWeatherDataMap(DataEvent dataEvent) {
@@ -201,6 +231,8 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, double high, double low) {
             if (Double.isNaN(high) && Double.isNaN(low)) return;
             drawText(canvas, high + "  |  " + low, centerX, textPaint(), centerY + 30);
+            if (weatherIcon != null)
+                canvas.drawBitmap(weatherIcon, centerX - 30, centerX + 30, textPaint());
         }
 
         @NonNull
