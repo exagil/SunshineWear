@@ -48,6 +48,7 @@ public class Timer extends Handler {
     }
 
     public void tick() {
-
+        if (timeTicker.shouldTimerBeRunning())
+            timeTicker.onTimeTick();
     }
 }

@@ -16,4 +16,13 @@ public class TimerTest {
         timer.tick();
         verify(timeTicker, never()).onTimeTick();
     }
+
+    @Test
+    public void testThatTimerShouldNotTickIfItShouldBeRunning() {
+        TimeTicker timeTicker = mock(TimeTicker.class);
+        Timer timer = Timer.getInstance(500, timeTicker);
+        when(timeTicker.shouldTimerBeRunning()).thenReturn(true);
+        timer.tick();
+        verify(timeTicker).onTimeTick();
+    }
 }
