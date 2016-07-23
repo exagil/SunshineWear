@@ -2,6 +2,7 @@ package com.example.android.sunshine.app.timer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class TimeViewModel {
     public static final String DATE_PATTERN = "EEE, MMM dd yyyy";
@@ -24,7 +25,7 @@ public class TimeViewModel {
     private String format(String pattern) {
         Date date = new Date();
         date.setTime(time.currentTimeInMillis);
-        return new SimpleDateFormat(pattern).format(date);
+        return new SimpleDateFormat(pattern).format(date).toUpperCase(Locale.ENGLISH);
     }
 
     private String formatWithPadding(int hour) {

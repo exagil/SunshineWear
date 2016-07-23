@@ -7,6 +7,7 @@ import org.mockito.Mockito;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import static junit.framework.Assert.assertEquals;
@@ -26,7 +27,7 @@ public class TimeViewModelTest {
         Time time = Time.now(TimeZone.getDefault());
         Date date = new Date();
         date.setTime(time.currentTimeInMillis);
-        String expectedFormattedDate = new SimpleDateFormat("EEE, MMM d yyyy").format(date);
+        String expectedFormattedDate = new SimpleDateFormat("EEE, MMM d yyyy").format(date).toUpperCase(Locale.ENGLISH);
         TimeViewModel timeViewModel = new TimeViewModel(time);
         assertEquals(expectedFormattedDate, timeViewModel.formattedDate());
     }

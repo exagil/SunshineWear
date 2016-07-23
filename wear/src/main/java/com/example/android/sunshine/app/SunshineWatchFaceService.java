@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -48,6 +49,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             GoogleApiClient.OnConnectionFailedListener,
             DataApi.DataListener {
 
+        final String DEGREE = "\u00b0";
         public static final int TIME_UPDATE_INTERVAL = 500;
         private Timer timer;
         private boolean hasRegisteredTimeZoneChangedReceiver;
@@ -223,7 +225,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             String formattedTime = timeViewModel.formattedTime();
             String formattedDate = timeViewModel.formattedDate();
             drawTime(canvas, formattedTime, centerX, centerY, bigTextPaint(56));
-            drawDateBelowTime(canvas, formattedDate, centerX, centerY, bigTextPaint(24));
+            drawDateBelowTime(canvas, formattedDate, centerX, centerY, lightPaint(24));
             drawHorizontalPartition(canvas, centerX, centerY);
             drawWeatherInformation(canvas, centerX, centerY, high, low);
         }
@@ -237,12 +239,26 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
 
         private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, Double high, Double low) {
             if (Double.isNaN(high) && Double.isNaN(low)) return;
-            String highTemperature = high.toString().substring(0, 2);
-            String lowTemperature = low.toString().substring(0, 2);
-            drawText(canvas, highTemperature, centerX, bigTextPaint(32), centerY + 80);
-            drawText(canvas, lowTemperature, centerX + 60, bigTextPaint(32), centerY + 80);
+            String highTemperature = high.toString().substring(0, 2) + DEGREE;
+            String lowTemperature = low.toString().substring(0, 2) + DEGREE;
+            drawText(canvas, highTemperature, centerX + 5, bigTextPaint(40), centerY + 80);
+            drawText(canvas, lowTemperature, centerX + 70, lightPaintWithSlimText(40), centerY + 80);
             if (isWeatherIconPresent())
                 canvas.drawBitmap(weatherIcon, centerX - 110, centerY + 30, textPaint());
+        }
+
+        private Paint lightPaintWithSlimText(int textSize) {
+            Typeface typeface = Typeface.create("sans-serif-light", Typeface.NORMAL);
+            Paint paint = lightPaint(textSize);
+            paint.setTypeface(typeface);
+            return paint;
+        }
+
+        @NonNull
+        private Paint lightPaint(int textSize) {
+            Paint paintLowTemperature = bigTextPaint(textSize);
+            paintLowTemperature.setColor(getResources().getColor(R.color.light_watchface_text));
+            return paintLowTemperature;
         }
 
         private Paint bigTextPaint(int textSize) {
