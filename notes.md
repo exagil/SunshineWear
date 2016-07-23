@@ -20,6 +20,8 @@ SunshineWatch - Sunshine watch is a digital watch which displays weather informa
   - Timer - Timer is a clock running in the background which notifies the current time to
             the watch repeatedly
 
+      - Time - Time is a quantity which occurs in irreversible succession
+
       - TimeTicker - TimeTicker communicates the tick of a second to watch
 
   - SunshineWatchFace - SunshineWatchFace is the view that the user sees when he uses the
