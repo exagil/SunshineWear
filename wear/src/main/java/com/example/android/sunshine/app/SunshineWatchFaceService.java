@@ -68,6 +68,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             super.onAmbientModeChanged(inAmbientMode);
             invalidate();
             timer.update();
+            requestWeatherInfoFromHandheld();
         }
 
         @Override
@@ -103,9 +104,12 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onVisibilityChanged(boolean visible) {
             super.onVisibilityChanged(visible);
-            if (visible) registerTimeZoneChangedReceiver();
-            else unregisterTimeZoneChangedReceiver();
-            timer.update();
+            if (visible) {
+                registerTimeZoneChangedReceiver();
+                timer.update();
+                requestWeatherInfoFromHandheld();
+            } else
+                unregisterTimeZoneChangedReceiver();
         }
 
         private void unregisterTimeZoneChangedReceiver() {
@@ -134,7 +138,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void requestWeatherInfoFromHandheld() {
-            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WeatherRequestKeys.SYNC_PATH);
+            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WeatherRequestKeys.SYNC_PATH + System.currentTimeMillis());
             putDataMapRequest.getDataMap().putInt("", 0);
             PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest();
             putDataRequest.setUrgent();
@@ -184,13 +188,14 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         private void drawWatchface(Canvas canvas, TimeViewModel timeViewModel, float centerY, float centerX) {
-            setBackgroundAsSunshineBlue(canvas);
+            boolean isInAmbientMode = isInAmbientMode();
+            setBackground(canvas, isInAmbientMode);
             Paint textPaint = textPaint();
             String formattedTime = timeViewModel.formattedTime();
             String formattedDate = timeViewModel.formattedDate();
             drawTime(canvas, formattedTime, centerX, centerY, textPaint);
             drawDateBelowTime(canvas, formattedDate, centerX, centerY, textPaint);
-            drawWeatherInformation(canvas, centerX, centerY, high, low);
+            if (!isInAmbientMode) drawWeatherInformation(canvas, centerX, centerY, high, low);
         }
 
         private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, double high, double low) {
@@ -205,10 +210,14 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             return paint;
         }
 
-        private void setBackgroundAsSunshineBlue(Canvas canvas) {
+        private void setBackground(Canvas canvas, boolean isInAmbientMode) {
             Paint backgroundPaint = new Paint();
-            backgroundPaint.setColor(getResources().getColor(R.color.sunshine_blue));
+            if (!isInAmbientMode)
+                backgroundPaint.setColor(getResources().getColor(R.color.sunshine_blue));
+            else
+                backgroundPaint.setColor(getResources().getColor(R.color.black));
             canvas.drawPaint(backgroundPaint);
+
         }
 
         private void drawTime(Canvas canvas, String formattedTime, float centerX, float centerY, Paint paint) {
