@@ -1,4 +1,4 @@
-package com.example.android.sunshine.app.watch.timer;
+package com.example.android.sunshine.app.timer;
 
 import org.junit.Before;
 import org.junit.Test;

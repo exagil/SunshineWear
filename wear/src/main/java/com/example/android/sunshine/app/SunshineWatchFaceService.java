@@ -17,9 +17,9 @@ import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
 
-import com.example.android.sunshine.app.watch.timer.Time;
-import com.example.android.sunshine.app.watch.timer.TimeViewModel;
-import com.example.android.sunshine.app.watch.timer.Timer;
+import com.example.android.sunshine.app.timer.Time;
+import com.example.android.sunshine.app.timer.TimeViewModel;
+import com.example.android.sunshine.app.timer.Timer;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
