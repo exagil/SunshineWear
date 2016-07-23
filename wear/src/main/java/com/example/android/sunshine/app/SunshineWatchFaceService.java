@@ -25,6 +25,8 @@ import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.util.TimeZone;
@@ -128,6 +130,15 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         @Override
         public void onConnected(@Nullable Bundle bundle) {
             Wearable.DataApi.addListener(googleApiClient, this);
+            requestWeatherInfoFromHandheld();
+        }
+
+        private void requestWeatherInfoFromHandheld() {
+            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WeatherRequestKeys.SYNC_PATH);
+            putDataMapRequest.getDataMap().putInt("", 0);
+            PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest();
+            putDataRequest.setUrgent();
+            Wearable.DataApi.putDataItem(googleApiClient, putDataRequest);
         }
 
         @Override
@@ -142,14 +153,25 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
 
         @Override
         public void onDataChanged(DataEventBuffer dataEventBuffer) {
+            if (dataEventBuffer == null) return;
             for (DataEvent dataEvent : dataEventBuffer) {
-                DataItem weatherDataItem = dataEvent.getDataItem();
-                DataMapItem weatherDataMapItem = DataMapItem.fromDataItem(weatherDataItem);
-                DataMap weatherDataMap = weatherDataMapItem.getDataMap();
-                high = weatherDataMap.getDouble(WeatherRequestKeys.HIGH);
-                low = weatherDataMap.getDouble(WeatherRequestKeys.LOW);
+                if (doesHaveWeatherData(dataEvent)) {
+                    DataMap weatherDataMap = getWeatherDataMap(dataEvent);
+                    high = weatherDataMap.getDouble(WeatherRequestKeys.HIGH);
+                    low = weatherDataMap.getDouble(WeatherRequestKeys.LOW);
+                }
             }
             invalidate();
+        }
+
+        private DataMap getWeatherDataMap(DataEvent dataEvent) {
+            DataItem weatherDataItem = dataEvent.getDataItem();
+            DataMapItem weatherDataMapItem = DataMapItem.fromDataItem(weatherDataItem);
+            return weatherDataMapItem.getDataMap();
+        }
+
+        private boolean doesHaveWeatherData(DataEvent dataEvent) {
+            return dataEvent.getDataItem().getUri().toString().contains(WeatherRequestKeys.DATA_PATH);
         }
 
         private class TimeZoneReceiver extends BroadcastReceiver {

@@ -64,6 +64,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    public static final String PATH_DATA_WEATHER = "/data/weather/";
     public final String LOG_TAG = SunshineSyncAdapter.class.getSimpleName();
     public static final String ACTION_DATA_UPDATED = "com.example.android.sunshine.app.ACTION_DATA_UPDATED";
     // Interval at which to sync with the weather, in seconds.
@@ -424,7 +425,7 @@ public class SunshineSyncAdapter extends AbstractThreadedSyncAdapter implements
 
     @NonNull
     private PutDataRequest buildWeatherRequest(double high, double low) {
-        PutDataMapRequest weatherDataMapRequest = PutDataMapRequest.create("/weather/" + System.currentTimeMillis());
+        PutDataMapRequest weatherDataMapRequest = PutDataMapRequest.create(PATH_DATA_WEATHER + System.currentTimeMillis());
         DataMap weatherRequestDataMap = weatherDataMapRequest.getDataMap();
         weatherRequestDataMap.putDouble("high", high);
         weatherRequestDataMap.putDouble("low", low);
