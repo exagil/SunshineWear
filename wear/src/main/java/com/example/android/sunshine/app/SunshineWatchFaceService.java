@@ -39,6 +39,9 @@ import java.io.InputStream;
 import java.util.TimeZone;
 
 public class SunshineWatchFaceService extends CanvasWatchFaceService {
+
+    // SunshineWatchFaceService knows about the mechanism used in order to render the Android Wear Watch Face
+
     @Override
     public Engine onCreateEngine() {
         return new SunshineWatchFaceEngine();
@@ -48,6 +51,9 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             GoogleApiClient.ConnectionCallbacks,
             GoogleApiClient.OnConnectionFailedListener,
             DataApi.DataListener {
+
+        // SunshineWatchFaceEngine provides a basis of interaction between the Android Wear Watch Face
+        // and the Handheld App
 
         final String DEGREE = "\u00b0";
         public static final int TIME_UPDATE_INTERVAL = 500;
