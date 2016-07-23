@@ -225,19 +225,21 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             String formattedTime = timeViewModel.formattedTime();
             String formattedDate = timeViewModel.formattedDate();
             drawTime(canvas, formattedTime, centerX, centerY, bigTextPaint(56));
-            drawDateBelowTime(canvas, formattedDate, centerX, centerY, lightPaint(24));
-            drawHorizontalPartition(canvas, centerX, centerY);
-            drawWeatherInformation(canvas, centerX, centerY, high, low);
+            drawDateBelowTime(canvas, formattedDate, centerX, centerY, lightPaint(24), isInAmbientMode);
+            drawHorizontalPartition(canvas, centerX, centerY, isInAmbientMode);
+            drawWeatherInformation(canvas, centerX, centerY, high, low, isInAmbientMode);
         }
 
-        private void drawHorizontalPartition(Canvas canvas, float centerX, float centerY) {
+        private void drawHorizontalPartition(Canvas canvas, float centerX, float centerY, boolean isInAmbientMode) {
+            if (isInAmbientMode) return;
             float xCoordinateFactor = (centerX / 5) * 2;
             float startPoint = xCoordinateFactor * 2;
             float endPoint = xCoordinateFactor * 3;
             canvas.drawLine(startPoint, centerY + 20, endPoint, centerY + 20, textPaint());
         }
 
-        private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, Double high, Double low) {
+        private void drawWeatherInformation(Canvas canvas, float centerX, float centerY, Double high, Double low, boolean isInAmbientMode) {
+            if (isInAmbientMode) return;
             if (Double.isNaN(high) && Double.isNaN(low)) return;
             String highTemperature = high.toString().substring(0, 2) + DEGREE;
             String lowTemperature = low.toString().substring(0, 2) + DEGREE;
@@ -294,7 +296,8 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             drawText(canvas, formattedTime, centerX, paint, centerY - 50);
         }
 
-        private void drawDateBelowTime(Canvas canvas, String formattedDate, float centerX, float centerY, Paint paint) {
+        private void drawDateBelowTime(Canvas canvas, String formattedDate, float centerX, float centerY, Paint paint, boolean isInAmbientMode) {
+            if (isInAmbientMode) paint.setColor(getResources().getColor(R.color.white));
             drawText(canvas, formattedDate, centerX, paint, centerY - 5);
         }
 
