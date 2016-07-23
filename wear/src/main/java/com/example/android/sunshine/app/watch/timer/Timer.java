@@ -10,13 +10,22 @@ import java.util.TimeZone;
 public class Timer extends Handler {
     private static int MESSAGE_UPDATE_TIME = 0;
     private static SunshineWatchFaceService.SunshineWatchFaceEngine engine;
+    private TimeTicker timeTicker;
     private TimeZone timeZone = TimeZone.getDefault();
 
-    public static Timer getInstance(@NonNull Integer updateInterval, SunshineWatchFaceService.SunshineWatchFaceEngine engine) {
-        TimeHandlerCallback timeHandlerCallback = new TimeHandlerCallback(updateInterval, MESSAGE_UPDATE_TIME, engine);
+    public Timer(TimeHandlerCallback callback, TimeTicker timeTicker) {
+        this.timeTicker = timeTicker;
+    }
+
+    public static Timer getInstance(@NonNull Integer updateIntervalInMilliseconds, SunshineWatchFaceService.SunshineWatchFaceEngine engine) {
+        TimeHandlerCallback timeHandlerCallback = new TimeHandlerCallback(updateIntervalInMilliseconds, MESSAGE_UPDATE_TIME, engine);
         Timer timer = new Timer(timeHandlerCallback, engine);
         timeHandlerCallback.setTimeHandler(timer);
         return timer;
+    }
+
+    public static Timer getInstance(@NonNull Integer updateIntervalInMilliseconds, TimeTicker timeTicker) {
+        return new Timer(null, timeTicker);
     }
 
     private Timer(TimeHandlerCallback callback, SunshineWatchFaceService.SunshineWatchFaceEngine engine) {
@@ -36,5 +45,9 @@ public class Timer extends Handler {
 
     public void updateTimeZone(TimeZone timeZone) {
         this.timeZone = timeZone;
+    }
+
+    public void tick() {
+
     }
 }
