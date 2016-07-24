@@ -153,6 +153,7 @@ public class WatchFace {
                                    float centerY, boolean isInAmbientMode) {
 
         Paint paint = lightPaintWithBigText(TEXT_SIZE_DATE, isInAmbientMode);
+        if (isInAmbientMode) paint.setAntiAlias(false);
         drawText(canvas, formattedDate, centerX, paint, centerY - OFFSET_Y_DATE);
     }
 
