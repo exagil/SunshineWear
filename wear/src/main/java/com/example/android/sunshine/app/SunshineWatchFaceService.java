@@ -57,7 +57,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             timer = new Timer(this);
             timeZoneReceiver = new TimeZoneReceiver();
             weatherSyncService = WeatherSyncService.initialize(getApplicationContext(), this);
-            weatherSyncService.requestWeatherInformationFromHandheld();
+            weatherSyncService.performSync();
         }
 
         @Override
@@ -65,7 +65,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             super.onAmbientModeChanged(inAmbientMode);
             invalidate();
             timer.update();
-            weatherSyncService.requestWeatherInformationFromHandheld();
+            weatherSyncService.performSync();
         }
 
         @Override
@@ -99,7 +99,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             if (visible) {
                 registerTimeZoneChangedReceiver();
                 timer.update();
-                weatherSyncService.requestWeatherInformationFromHandheld();
+                weatherSyncService.performSync();
             } else
                 unregisterTimeZoneChangedReceiver();
         }

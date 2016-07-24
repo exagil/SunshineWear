@@ -10,6 +10,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.Wearable;
 
+//  WeatherSyncService provides a basis for SunshineClient to be able to sync the
+//  weather data from the handheld app to the wearable
+
 public class WeatherSyncService implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -39,7 +42,7 @@ public class WeatherSyncService implements
         Wearable.DataApi.addListener(googleApiClient, sunshineClient);
     }
 
-    public void requestWeatherInformationFromHandheld() {
+    public void performSync() {
         sunshineClient.requestWeatherInformationFromHandheld();
     }
 

@@ -21,6 +21,9 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.io.InputStream;
 
+//  SunshineClient communicates with the handheld app in order to fetch the weather data
+//  via Wearable Data API
+
 public class SunshineClient implements DataApi.DataListener {
     public static final String BLANK_REQUEST_KEY = "";
     public static final int BLANK_REQUEST_VALUE = 0;
