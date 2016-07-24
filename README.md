@@ -13,9 +13,7 @@ Build Instructions (Mac OS X)
 - Clone the repository
 - Install [Java](https://java.com/en/download/help/download_options.xml)
 - Install [Android Studio](http://developer.android.com/sdk/index.html) with Android SDK Tools
-- Install [Genymotion](https://www.genymotion.com/)
-- Start Genymotion Emulator
-- Install the debug version of the app using `./gradlew installDebug`
+- Follow [these instructions](https://developer.android.com/training/wearables/apps/creating.html) to run the app
 
 Features
 --------
