@@ -4,28 +4,26 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 
-import com.example.android.sunshine.app.SunshineWatchFaceService;
-
-public class TimeHandlerCallback implements Handler.Callback {
+class TimeHandlerCallback implements Handler.Callback {
     private Integer updateInterval;
     private int messageKey;
-    private SunshineWatchFaceService.SunshineWatchFaceEngine engine;
+    private TimeTicker timeTicker;
     private Handler handler;
 
     public TimeHandlerCallback(@NonNull Integer updateInterval,
                                int messageKey,
-                               SunshineWatchFaceService.SunshineWatchFaceEngine engine) {
+                               TimeTicker timeTicker) {
 
         this.updateInterval = updateInterval;
         this.messageKey = messageKey;
-        this.engine = engine;
+        this.timeTicker = timeTicker;
     }
 
     @Override
     public boolean handleMessage(Message message) {
         if (message.what == this.messageKey) {
-            engine.invalidate();
-            if (engine.shouldTimerBeRunning()) {
+            timeTicker.onTimeUpdate();
+            if (timeTicker.shouldTimerBeRunning()) {
                 long currentTimeInMillis = System.currentTimeMillis();
                 long timeInMillisToUpdateIn = updateInterval - (currentTimeInMillis % updateInterval);
                 handler.sendEmptyMessageDelayed(this.messageKey, timeInMillisToUpdateIn);
@@ -34,7 +32,7 @@ public class TimeHandlerCallback implements Handler.Callback {
         return false;
     }
 
-    public void setTimeHandler(Timer timer) {
-        this.handler = timer;
+    public void setTimeHandler(TimeHandler timeHandler) {
+        this.handler = timeHandler;
     }
 }

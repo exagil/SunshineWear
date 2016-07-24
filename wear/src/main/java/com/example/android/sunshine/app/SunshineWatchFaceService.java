@@ -18,6 +18,7 @@ import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
 
 import com.example.android.sunshine.app.timer.Time;
+import com.example.android.sunshine.app.timer.TimeTicker;
 import com.example.android.sunshine.app.timer.TimeViewModel;
 import com.example.android.sunshine.app.timer.Timer;
 import com.google.android.gms.common.ConnectionResult;
@@ -50,25 +51,26 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
     public class SunshineWatchFaceEngine extends CanvasWatchFaceService.Engine implements
             GoogleApiClient.ConnectionCallbacks,
             GoogleApiClient.OnConnectionFailedListener,
-            DataApi.DataListener {
+            DataApi.DataListener,
+            TimeTicker {
 
         // SunshineWatchFaceEngine provides a basis of interaction between the Android Wear Watch Face
         // and the Handheld App
 
         final String DEGREE = "\u00b0";
         public static final int TIME_UPDATE_INTERVAL = 500;
-        private Timer timer;
         private boolean hasRegisteredTimeZoneChangedReceiver;
         private TimeZoneReceiver timeZoneReceiver;
         private GoogleApiClient googleApiClient;
         private Double high = Double.NaN;
         private Double low = Double.NaN;
         private Bitmap weatherIcon;
+        private Timer timer;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
-            this.timer = Timer.getInstance(TIME_UPDATE_INTERVAL, this);
+            timer = new Timer(this);
             timeZoneReceiver = new TimeZoneReceiver();
             googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
                     .addConnectionCallbacks(this)
@@ -142,6 +144,12 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             SunshineWatchFaceService.this.registerReceiver(timeZoneReceiver, timeZoneChangedIntentFilter);
         }
 
+        @Override
+        public void onTimeUpdate() {
+            invalidate();
+        }
+
+        @Override
         public boolean shouldTimerBeRunning() {
             return isVisible() && !isInAmbientMode();
         }

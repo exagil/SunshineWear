@@ -1,7 +1,7 @@
 package com.example.android.sunshine.app.timer;
 
 public interface TimeTicker {
-    void onTimeTick();
+    void onTimeUpdate();
 
     boolean shouldTimerBeRunning();
 }
