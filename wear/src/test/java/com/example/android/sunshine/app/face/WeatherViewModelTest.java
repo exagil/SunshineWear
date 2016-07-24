@@ -66,4 +66,17 @@ public class WeatherViewModelTest {
         WeatherViewModel weatherViewModel = new WeatherViewModel(new Double(27.1397d), new Double(0), null);
         assertEquals("27°", weatherViewModel.lowTemperature());
     }
+
+    @Test
+    public void testShouldKnowIfWeatherIconIsPresent() {
+        Bitmap weatherIcon = Mockito.mock(Bitmap.class);
+        WeatherViewModel weatherViewModel = new WeatherViewModel(1d, 1d, weatherIcon);
+        assertTrue(weatherViewModel.isWeatherIconPresent());
+    }
+
+    @Test
+    public void testShouldKnowIfWeatherIconIsNotPresent() {
+        WeatherViewModel weatherViewModel = new WeatherViewModel(1d, 1d, null);
+        assertFalse(weatherViewModel.isWeatherIconPresent());
+    }
 }

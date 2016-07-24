@@ -34,4 +34,8 @@ public class WeatherViewModel {
         String formattedTemperature = String.format(FORMAT_PADDING_LEFT_ZEROS, originalTemperatureWithoutDecimals);
         return formattedTemperature + DEGREES;
     }
+
+    public boolean isWeatherIconPresent() {
+        return weatherIcon != null;
+    }
 }
