@@ -10,30 +10,23 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
 
+import com.example.android.sunshine.app.sync.WeatherInformationListener;
+import com.example.android.sunshine.app.sync.WeatherSyncService;
 import com.example.android.sunshine.app.timer.Time;
 import com.example.android.sunshine.app.timer.TimeTicker;
 import com.example.android.sunshine.app.timer.TimeViewModel;
 import com.example.android.sunshine.app.timer.Timer;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
-import com.google.android.gms.wearable.PutDataMapRequest;
-import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import java.io.InputStream;
@@ -49,10 +42,8 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
     }
 
     public class SunshineWatchFaceEngine extends CanvasWatchFaceService.Engine implements
-            GoogleApiClient.ConnectionCallbacks,
-            GoogleApiClient.OnConnectionFailedListener,
-            DataApi.DataListener,
-            TimeTicker {
+            TimeTicker,
+            WeatherInformationListener {
 
         // SunshineWatchFaceEngine provides a basis of interaction between the Android Wear Watch Face
         // and the Handheld App
@@ -66,18 +57,15 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         private Double low = Double.NaN;
         private Bitmap weatherIcon;
         private Timer timer;
+        private WeatherSyncService weatherSyncService;
 
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
             timer = new Timer(this);
             timeZoneReceiver = new TimeZoneReceiver();
-            googleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .addApi(Wearable.API)
-                    .build();
-            googleApiClient.connect();
+            weatherSyncService = WeatherSyncService.initialize(getApplicationContext(), this);
+            weatherSyncService.requestWeatherInformationFromHandheld();
         }
 
         @Override
@@ -85,7 +73,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             super.onAmbientModeChanged(inAmbientMode);
             invalidate();
             timer.update();
-            requestWeatherInfoFromHandheld();
+            weatherSyncService.requestWeatherInformationFromHandheld();
         }
 
         @Override
@@ -108,11 +96,6 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
         }
 
         @Override
-        public void onDestroy() {
-            super.onDestroy();
-        }
-
-        @Override
         public void onTimeTick() {
             super.onTimeTick();
             invalidate();
@@ -124,7 +107,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             if (visible) {
                 registerTimeZoneChangedReceiver();
                 timer.update();
-                requestWeatherInfoFromHandheld();
+                weatherSyncService.requestWeatherInformationFromHandheld();
             } else
                 unregisterTimeZoneChangedReceiver();
         }
@@ -154,44 +137,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             return isVisible() && !isInAmbientMode();
         }
 
-        @Override
-        public void onConnected(@Nullable Bundle bundle) {
-            Wearable.DataApi.addListener(googleApiClient, this);
-            requestWeatherInfoFromHandheld();
-        }
-
-        private void requestWeatherInfoFromHandheld() {
-            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WeatherRequestKeys.SYNC_PATH + System.currentTimeMillis());
-            putDataMapRequest.getDataMap().putInt("", 0);
-            PutDataRequest putDataRequest = putDataMapRequest.asPutDataRequest();
-            putDataRequest.setUrgent();
-            Wearable.DataApi.putDataItem(googleApiClient, putDataRequest);
-        }
-
-        @Override
-        public void onConnectionSuspended(int i) {
-
-        }
-
-        @Override
-        public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-        }
-
-        @Override
-        public void onDataChanged(DataEventBuffer dataEventBuffer) {
-            if (dataEventBuffer == null) return;
-            for (DataEvent dataEvent : dataEventBuffer) {
-                if (doesHaveWeatherData(dataEvent)) {
-                    DataMap weatherDataMap = getWeatherDataMap(dataEvent);
-                    high = weatherDataMap.getDouble(WeatherRequestKeys.HIGH);
-                    low = weatherDataMap.getDouble(WeatherRequestKeys.LOW);
-                    fetchWeatherIconAsynchronously(weatherDataMap);
-                }
-            }
-            invalidate();
-        }
-
+        @SuppressWarnings("unused")
         private void fetchWeatherIconAsynchronously(DataMap weatherDataMap) {
             Asset iconAsset = weatherDataMap.getAsset(WeatherRequestKeys.ICON);
             if (googleApiClient.isConnected()) {
@@ -214,14 +160,16 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             });
         }
 
-        private DataMap getWeatherDataMap(DataEvent dataEvent) {
-            DataItem weatherDataItem = dataEvent.getDataItem();
-            DataMapItem weatherDataMapItem = DataMapItem.fromDataItem(weatherDataItem);
-            return weatherDataMapItem.getDataMap();
+        @Override
+        public void onWeatherInformationFetchSuccess(double high, double low) {
+            this.high = high;
+            this.low = low;
+            invalidate();
         }
 
-        private boolean doesHaveWeatherData(DataEvent dataEvent) {
-            return dataEvent.getDataItem().getUri().toString().contains(WeatherRequestKeys.DATA_PATH);
+        @Override
+        public void onWeatherInformationFetchFailure() {
+
         }
 
         private class TimeZoneReceiver extends BroadcastReceiver {
