@@ -1,7 +1,14 @@
 package com.example.android.sunshine.app.sync;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
+
 import com.example.android.sunshine.app.WeatherRequestKeys;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.Asset;
 import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
@@ -11,6 +18,8 @@ import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
+
+import java.io.InputStream;
 
 public class SunshineClient implements DataApi.DataListener {
     public static final String BLANK_REQUEST_KEY = "";
@@ -35,7 +44,8 @@ public class SunshineClient implements DataApi.DataListener {
                 DataMap weatherDataMap = getWeatherDataMap(dataEvent);
                 Double high = weatherDataMap.getDouble(WeatherRequestKeys.HIGH);
                 Double low = weatherDataMap.getDouble(WeatherRequestKeys.LOW);
-                weatherInformationListener.onWeatherInformationFetchSuccess(high, low);
+                weatherInformationListener.onTemperatureFetchSuccess(high, low);
+                fetchWeatherIconAsynchronously(weatherDataMap);
                 return;
             }
         }
@@ -57,5 +67,29 @@ public class SunshineClient implements DataApi.DataListener {
         DataItem weatherDataItem = dataEvent.getDataItem();
         DataMapItem weatherDataMapItem = DataMapItem.fromDataItem(weatherDataItem);
         return weatherDataMapItem.getDataMap();
+    }
+
+    private void fetchWeatherIconAsynchronously(DataMap weatherDataMap) {
+        Asset iconAsset = weatherDataMap.getAsset(WeatherRequestKeys.ICON);
+        if (googleApiClient.isConnected()) {
+            PendingResult<DataApi.GetFdForAssetResult> fileDescriptorForIconAsset =
+                    Wearable.DataApi.getFdForAsset(googleApiClient, iconAsset);
+            obtainWeatherIconUsingFileDescriptor(fileDescriptorForIconAsset);
+        }
+    }
+
+    private void obtainWeatherIconUsingFileDescriptor(PendingResult<DataApi.GetFdForAssetResult> fileDescriptorForIconAsset) {
+        fileDescriptorForIconAsset.setResultCallback(new ResultCallback<DataApi.GetFdForAssetResult>() {
+            @Override
+            public void onResult(@NonNull DataApi.GetFdForAssetResult getFdForAssetResult) {
+                InputStream weatherIconInputStream = getFdForAssetResult.getInputStream();
+                Bitmap fetchedWeatherIcon = BitmapFactory.decodeStream(weatherIconInputStream);
+                if (fetchedWeatherIcon == null) {
+                    weatherInformationListener.onWeatherInformationFetchFailure();
+                    return;
+                }
+                weatherInformationListener.onWeatherIconFetchSuccess(fetchedWeatherIcon);
+            }
+        });
     }
 }

@@ -1,6 +1,7 @@
 package com.example.android.sunshine.app.sync;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -51,8 +52,13 @@ public class WeatherSyncService implements
     }
 
     @Override
-    public void onWeatherInformationFetchSuccess(double high, double low) {
-        weatherInformationListener.onWeatherInformationFetchSuccess(high, low);
+    public void onTemperatureFetchSuccess(double high, double low) {
+        weatherInformationListener.onTemperatureFetchSuccess(high, low);
+    }
+
+    @Override
+    public void onWeatherIconFetchSuccess(Bitmap icon) {
+        weatherInformationListener.onWeatherIconFetchSuccess(icon);
     }
 
     @Override

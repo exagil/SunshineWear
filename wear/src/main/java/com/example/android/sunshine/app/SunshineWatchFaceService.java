@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -22,14 +21,7 @@ import com.example.android.sunshine.app.timer.TimeTicker;
 import com.example.android.sunshine.app.timer.TimeViewModel;
 import com.example.android.sunshine.app.timer.Timer;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wearable.Asset;
-import com.google.android.gms.wearable.DataApi;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.Wearable;
 
-import java.io.InputStream;
 import java.util.TimeZone;
 
 public class SunshineWatchFaceService extends CanvasWatchFaceService {
@@ -137,39 +129,21 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             return isVisible() && !isInAmbientMode();
         }
 
-        @SuppressWarnings("unused")
-        private void fetchWeatherIconAsynchronously(DataMap weatherDataMap) {
-            Asset iconAsset = weatherDataMap.getAsset(WeatherRequestKeys.ICON);
-            if (googleApiClient.isConnected()) {
-                PendingResult<DataApi.GetFdForAssetResult> fileDescriptorForIconAsset =
-                        Wearable.DataApi.getFdForAsset(googleApiClient, iconAsset);
-                obtainWeatherIconUsingFileDescriptor(fileDescriptorForIconAsset);
-            }
-        }
-
-        private void obtainWeatherIconUsingFileDescriptor(PendingResult<DataApi.GetFdForAssetResult> fileDescriptorForIconAsset) {
-            fileDescriptorForIconAsset.setResultCallback(new ResultCallback<DataApi.GetFdForAssetResult>() {
-                @Override
-                public void onResult(@NonNull DataApi.GetFdForAssetResult getFdForAssetResult) {
-                    InputStream weatherIconInputStream = getFdForAssetResult.getInputStream();
-                    Bitmap fetchedWeatherIcon = BitmapFactory.decodeStream(weatherIconInputStream);
-                    if (fetchedWeatherIcon == null) return;
-                    weatherIcon = fetchedWeatherIcon;
-                    invalidate();
-                }
-            });
-        }
-
         @Override
-        public void onWeatherInformationFetchSuccess(double high, double low) {
+        public void onTemperatureFetchSuccess(double high, double low) {
             this.high = high;
             this.low = low;
             invalidate();
         }
 
         @Override
-        public void onWeatherInformationFetchFailure() {
+        public void onWeatherIconFetchSuccess(Bitmap icon) {
+            this.weatherIcon = icon;
+            invalidate();
+        }
 
+        @Override
+        public void onWeatherInformationFetchFailure() {
         }
 
         private class TimeZoneReceiver extends BroadcastReceiver {
