@@ -19,4 +19,11 @@ public class Time {
     public int hashCode() {
         return (int) (timeInMillis ^ (timeInMillis >>> 32));
     }
+
+    @Override
+    public String toString() {
+        return "Time{" +
+                "timeInMillis=" + timeInMillis +
+                '}';
+    }
 }
