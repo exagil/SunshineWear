@@ -8,10 +8,10 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.support.wearable.watchface.CanvasWatchFaceService;
-import android.support.wearable.watchface.WatchFaceStyle;
 import android.view.SurfaceHolder;
 
 import com.example.android.sunshine.app.face.OnDrawListener;
+import com.example.android.sunshine.app.face.SunshineWatchFaceStyleBuilder;
 import com.example.android.sunshine.app.face.WatchFace;
 import com.example.android.sunshine.app.sync.WeatherInformationListener;
 import com.example.android.sunshine.app.sync.WeatherSyncService;
@@ -52,6 +52,7 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             timeZoneReceiver = new TimeZoneReceiver();
             weatherSyncService = WeatherSyncService.initialize(getApplicationContext(), this);
             weatherSyncService.performSync();
+            setWatchFaceStyle(new SunshineWatchFaceStyleBuilder(SunshineWatchFaceService.this).build());
         }
 
         @Override
@@ -60,11 +61,6 @@ public class SunshineWatchFaceService extends CanvasWatchFaceService {
             invalidate();
             timer.update();
             weatherSyncService.performSync();
-        }
-
-        @Override
-        public void setWatchFaceStyle(WatchFaceStyle watchFaceStyle) {
-            super.setWatchFaceStyle(watchFaceStyle);
         }
 
         @Override
